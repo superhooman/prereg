@@ -15,8 +15,9 @@ jobs:
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.PASSWORD }}
           script: |
+            pm2 stop prereg
             cd /apps/prereg
-            git pull origin main
+            git pull
             npm ci
             npm run build
-            pm2 restart prereg
+            pm2 start prereg
