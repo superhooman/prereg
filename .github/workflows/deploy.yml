@@ -1,0 +1,22 @@
+name: Deploy
+ 
+on:
+  push:
+    branches: [ main ]
+ 
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy NodeJS app
+        uses: appleboy/ssh-action@v0.1.3
+        with:
+          host: ${{secrets.HOST}}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          script: |
+            cd /apps/prereg
+            git pull origin main
+            npm ci
+            npm run build
+            pm2 restart prereg
