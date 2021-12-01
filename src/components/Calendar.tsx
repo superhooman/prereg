@@ -2,7 +2,7 @@ import { ArrowLeftIcon, ArrowRightIcon, Cross2Icon } from "@modulz/radix-icons";
 import dynamic from "next/dynamic";
 import { FC, PropsWithChildren, useCallback, useMemo, useState } from "react";
 import { CalendarItem, Card as CardType, Time, Week, WeekDay } from "src/types";
-import { calculateOverlap, formatTime, getTimeRange, TIMES, WEEK_DAYS } from "src/utils/calendar";
+import { calculateOverlap, getTimeRange, TIMES, WEEK_DAYS } from "src/utils/calendar";
 import { styled } from "src/utils/theme";
 import { Card } from "./Card";
 import { Item } from "./Course";
