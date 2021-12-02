@@ -15,7 +15,7 @@ import { Placeholder, PlaceholderProps } from 'src/components/Placeholder';
 
 const SEMESTERS: Option[] = [
   {
-    label: "Sprint 2022",
+    label: "Spring 2022",
     value: "603",
   },
   {
