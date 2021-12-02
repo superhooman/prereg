@@ -4,7 +4,7 @@ import Head from "next/head";
 import Cookies from 'js-cookie'
 import { useCallback, useEffect, useReducer } from "react";
 import { darkTheme } from "src/utils/theme";
-import { appContext, AppState, initialState, reducer, Theme } from "src/utils/context";
+import { appContext, initialState, reducer, Theme } from "src/utils/context";
 import { ThemeToggle } from "src/components/ThemeToggle";
 import { LoadingOverlay } from "src/components/LoadingOverlay";
 import { NextPageContext } from "next";
