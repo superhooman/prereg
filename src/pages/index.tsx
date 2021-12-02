@@ -14,6 +14,8 @@ import { request } from 'src/utils/request';
 import { Placeholder, PlaceholderProps } from 'src/components/Placeholder';
 import { Loading } from 'src/components/Loading';
 
+const LIMIT = 10;
+
 const SEMESTERS: Option[] = [
   {
     label: "Spring 2022",
@@ -41,7 +43,7 @@ const Title = styled('h1', {
 
 const Form = styled('form', {
   display: 'grid',
-  gridTemplateColumns: '3fr 1fr 1fr',
+  gridTemplateColumns: '3fr 1fr 1fr 1fr',
   gap: '$big',
 
   '@bp2': {
@@ -80,6 +82,8 @@ const Label = styled('h2', {
 interface Values {
   search: string;
   page: number;
+  total: number;
+  level: string;
 }
 
 enum State {
@@ -88,9 +92,41 @@ enum State {
   LOADED = 'loaded',
 }
 
+interface Response {
+  data: CourseType[];
+  total: string;
+}
+
+const levels: Option[] = [
+  {
+    label: 'Not specified',
+    value: '-1',
+  },
+  {
+    label: 'Undergraduate',
+    value: '1',
+  },
+  {
+    label: 'Master',
+    value: '2',
+  },
+  {
+    label: 'PhD',
+    value: '3',
+  },
+  {
+    label: 'Doctor of Medicine',
+    value: '6',
+  },
+  {
+    label: "Zero Years of Master's Programs",
+    value: '8'
+  }
+]
+
 const stateToPlaceholder: Record<State, PlaceholderProps> = {
   idle: {
-    icon: <ArrowUpIcon/>,
+    icon: <ArrowUpIcon />,
     text: 'Use the form above to find courses',
   },
   loading: {
@@ -110,6 +146,8 @@ const Home = () => {
   const [values, setValues] = useState<Values>({
     search: '',
     page: 1,
+    total: 1,
+    level: '1',
   });
 
   const { dispatch, courses, term } = useContext(appContext);
@@ -130,6 +168,13 @@ const Home = () => {
     dispatch({ type: 'selectTerm', term: value })
   }, [dispatch]);
 
+  const setLevel = useCallback((value: string) => {
+    setValues(values => ({
+      ...values,
+      level: value,
+    }));
+  }, []);
+
   const setSearch = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
     setValues(values => ({
@@ -140,12 +185,15 @@ const Home = () => {
 
   useEffect(getSemesters, [getSemesters]);
 
-  const getCourses = useCallback(({ search, page }: Values) => {
+  const getCourses = useCallback((search: string, page: number, level: string) => {
     setState(State.LOADING);
+    if (page === 1) {
+      setResults([]);
+    }
     request({
       'method': 'getSearchData',
       'searchParams[formSimple]': 'false',
-      'searchParams[limit]': 10,
+      'searchParams[limit]': LIMIT,
       'searchParams[page]': page,
       'searchParams[start]': 0,
       'searchParams[quickSearch]': search,
@@ -154,21 +202,38 @@ const Home = () => {
       'searchParams[semester]': term,
       'searchParams[schools]': '',
       'searchParams[departments]': '',
-      'searchParams[levels]': '',
+      'searchParams[levels][]': level,
       'searchParams[subjects]': '',
       'searchParams[instructors]': '',
       'searchParams[breadths]': '',
       'searchParams[abbrNum]': '',
       'searchParams[credit]': '',
     }).then((res) => {
-      const { data } = res.data
+      const response: Response = res.data;
+      const { data, total } = response
       if (Array.isArray(data)) {
-        setResults(data);
+        setResults(prev => page === 1 ? data : [...prev, ...data]);
+        setValues(values => ({
+          ...values,
+          page,
+          total: Math.round(Number(total) / LIMIT),
+        }))
       }
     }).finally(() => {
       setState(State.LOADED);
     });
   }, [term]);
+
+  const nextPage = useCallback(() => {
+    setValues((values) => {
+      const newPage = values.page + 1;
+      getCourses(values.search, newPage, values.level);
+      return {
+        ...values,
+        page: newPage,
+      }
+    })
+  }, [getCourses]);
 
   const addToCart = useCallback((course: CourseType) => {
     dispatch({ type: 'addToCart', course });
@@ -180,7 +245,7 @@ const Home = () => {
 
   const onSubmit = useCallback((e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    getCourses(values);
+    getCourses(values.search, 1, values.level);
   }, [getCourses, values]);
 
   const loading = state === State.LOADING;
@@ -197,6 +262,12 @@ const Home = () => {
           icon={<MagnifyingGlassIcon />}
           spellCheck="false"
           autoCorrect="off"
+        />
+        <Select
+          value={values.level}
+          onChange={setLevel}
+          width="max"
+          options={levels}
         />
         <Select
           value={term}
@@ -220,6 +291,15 @@ const Home = () => {
                   )}
                 </Course>
               ))}
+              {loading ? (
+                <div style={{ display: 'flex', justifyContent: 'center', marginTop: 8 }}>
+                  <Loading>
+                    <SymbolIcon width={24} height={24} style={{ display: 'block' }} />
+                  </Loading>
+                </div>
+              ) : (values.page < values.total ? (
+                <Button onClick={nextPage} style={{ maxWidth: 240, width: '100%', margin: 'auto' }}>Load more</Button>
+              ) : null)}
             </Rows>
           ) : (
             <Placeholder
@@ -231,18 +311,18 @@ const Home = () => {
           <Label>Cart</Label>
           {courses.length ? (
             <Rows>
-            {courses.map((course) => (
-              <CartItem
-                key={getCourseId(course)}
-                title={course.ABBR}
-                subtitle={course.TITLE}
-                onRemove={() => removeFromCart(course)}
-              />
-            ))}
-            <Link passHref href="/calendar">
-              <Button icon={<MagicWandIcon />}>Proceed</Button>
-            </Link>
-          </Rows>
+              {courses.map((course) => (
+                <CartItem
+                  key={getCourseId(course)}
+                  title={course.ABBR}
+                  subtitle={course.TITLE}
+                  onRemove={() => removeFromCart(course)}
+                />
+              ))}
+              <Link passHref href="/calendar">
+                <Button icon={<MagicWandIcon />}>Proceed</Button>
+              </Link>
+            </Rows>
           ) : (
             <Placeholder
               icon={<CardStackPlusIcon />}

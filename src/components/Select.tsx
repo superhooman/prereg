@@ -121,6 +121,7 @@ type StyledInputVariants = VariantProps<typeof SelectBase>;
 export interface Option {
   label: string;
   value: string;
+  disabled?: boolean;
 }
 
 type SelectProps = Omit<SelectHTMLAttributes<HTMLSelectElement>, 'size' | 'onChange'> & Omit<StyledInputVariants, 'icon'> & {
