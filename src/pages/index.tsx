@@ -1,6 +1,5 @@
 import { ArrowUpIcon, CardStackPlusIcon, MagicWandIcon, MagnifyingGlassIcon, SymbolIcon } from '@modulz/radix-icons'
 import Link from 'next/link'
-import axios from 'axios';
 import { ChangeEvent, FormEvent, useCallback, useContext, useEffect, useState } from 'react';
 import { Button } from 'src/components/Button';
 import { CartItem } from 'src/components/CartItem';
@@ -8,11 +7,22 @@ import { Course } from 'src/components/Course';
 import { Input } from "src/components/Input";
 import { Layout } from 'src/components/Layout';
 import { Option, Select } from 'src/components/Select';
-import type { Course as CourseType, Semester } from 'src/types';
+import type { Course as CourseType } from 'src/types';
 import { appContext, getCourseId, hasCourse } from 'src/utils/context';
 import { styled } from 'src/utils/theme';
 import { request } from 'src/utils/request';
 import { Placeholder, PlaceholderProps } from 'src/components/Placeholder';
+
+const SEMESTERS: Option[] = [
+  {
+    label: "Sprint 2022",
+    value: "603",
+  },
+  {
+    label: "Fall 2021",
+    value: "602",
+  },
+];
 
 const Title = styled('h1', {
   all: 'unset',
@@ -104,14 +114,16 @@ const Home = () => {
   const { dispatch, courses, term } = useContext(appContext);
 
   const getSemesters = useCallback(() => {
-    axios('/api/getSemesters').then((res) => {
-      const data = res.data as Semester[];
-      if (!term) {
-        dispatch({ type: 'selectTerm', term: data[0].ID })
-      }
-      setSemesters(data.map(({ ID, NAME }) => ({ label: NAME, value: ID })));
-    });
-  }, [term, dispatch]);
+    setSemesters(SEMESTERS);
+    dispatch({ type: 'selectTerm', term: SEMESTERS[0].value })
+    // axios('/api/getSemesters').then((res) => {
+    //   const data = res.data as Semester[];
+    //   if (!term) {
+    //     dispatch({ type: 'selectTerm', term: data[0].ID })
+    //   }
+    //   setSemesters(data.map(({ ID, NAME }) => ({ label: NAME, value: ID })));
+    // });
+  }, [dispatch]);
 
   const setSemester = useCallback((value: string) => {
     dispatch({ type: 'selectTerm', term: value })
