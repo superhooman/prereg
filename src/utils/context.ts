@@ -1,7 +1,7 @@
 import { createContext } from "react";
 import { Course } from "src/types";
 
-type Theme = 'default' | 'dark';
+export type Theme = 'default' | 'dark';
 
 type Action = 
   | { type: 'addToCart', course: Course }
@@ -13,7 +13,7 @@ type Action =
   | { type: 'loadDataEnd' }
   | { type: 'setTheme', theme: Theme }
 
-interface AppState {
+export interface AppState {
   courses: Course[];
   isLoading: boolean;
   progres: number;

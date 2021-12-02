@@ -17,6 +17,8 @@ jobs:
           script: |
             pm2 stop prereg
             cd /apps/prereg
+            eval "$(ssh-agent -s)"
+            ssh-add ~/.ssh/id_ed25519
             git pull
             npm ci
             npm run build

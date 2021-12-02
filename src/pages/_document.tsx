@@ -39,7 +39,9 @@ export default class Document extends NextDocument {
           <meta name="keywords" content="Registrar, Nazarbayev University, Courses, Online, Tool" />
           <meta name="author" content="superhooman" />
 
-          <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+          <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no" />
+          <meta name="apple-mobile-web-app-capable" content="yes" />
+          <meta name="apple-mobile-web-app-status-bar-style" content="default" />
           <style id="stitches" dangerouslySetInnerHTML={{ __html: getCssText() }} />
         </Head>
         <body>

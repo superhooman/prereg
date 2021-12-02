@@ -1,12 +1,16 @@
 import { globalCss } from "@stitches/react";
-import type { AppProps } from "next/app";
+import type { AppContext, AppProps } from "next/app";
+import Head from "next/head";
+import Cookies from 'js-cookie'
 import { useCallback, useEffect, useReducer } from "react";
 import { darkTheme } from "src/utils/theme";
-import { appContext, initialState, reducer } from "src/utils/context";
+import { appContext, AppState, initialState, reducer, Theme } from "src/utils/context";
 import { ThemeToggle } from "src/components/ThemeToggle";
 import { LoadingOverlay } from "src/components/LoadingOverlay";
+import { NextPageContext } from "next";
+import { Request } from "express";
 
-const THEME_SETTING = 'reg:themeSetting';
+const THEME_SETTING = 'reg.themeSetting';
 
 const globalStyles = globalCss({
   '@import': "url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap')",
@@ -28,8 +32,20 @@ const globalStyles = globalCss({
 
 const Provider = appContext.Provider;
 
-const App = ({ Component, pageProps }: AppProps) => {
-  const [state, dispatch] = useReducer(reducer, initialState);
+const themeToColor: Record<Theme, string> = {
+  'dark': '#000000',
+  'default': '#ffffff',
+}
+
+interface Props extends AppProps {
+  theme: Theme;
+}
+
+const App = ({ Component, theme }: Props) => {
+  const [state, dispatch] = useReducer(reducer, {
+    ...initialState,
+    theme,
+  });
 
   useEffect(() => {
     if (state.theme === 'dark') {
@@ -40,18 +56,9 @@ const App = ({ Component, pageProps }: AppProps) => {
     }
   }, [state.theme]);
 
-  useEffect(() => {
-    const themeSetting = localStorage.getItem(THEME_SETTING);
-    if (themeSetting === 'dark' || themeSetting === 'default') {
-      dispatch({ type: 'setTheme', theme: themeSetting });
-    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      dispatch({ type: 'setTheme', theme: 'dark' });
-    }
-  }, []);
-
   const toggleTheme = useCallback(() => {
     const newTheme = state.theme === 'default' ? 'dark' : 'default';
-    localStorage.setItem(THEME_SETTING, newTheme)
+    Cookies.set(THEME_SETTING, newTheme);
     dispatch({ type: 'setTheme', theme: newTheme });
   }, [state.theme]) ;
 
@@ -62,11 +69,35 @@ const App = ({ Component, pageProps }: AppProps) => {
       ...state,
       dispatch,
     }}>
+      <Head>
+        <style dangerouslySetInnerHTML={{ __html: `html{background-color:${themeToColor[state.theme]};}` }} />
+        <meta name="theme-color" content={themeToColor[state.theme]} />
+      </Head>
       <LoadingOverlay value={state.progres} active={state.isLoading} text="Fetching schedule..." />
-      <Component {...pageProps} />
+      <Component />
       <ThemeToggle state={state.theme} onClick={toggleTheme} />
     </Provider>
   )
+}
+
+interface Ctx extends NextPageContext {
+  req?: Request;
+}
+
+interface ExpressAppContext extends AppContext {
+  ctx: Ctx;
+}
+
+App.getInitialProps = (appContext: ExpressAppContext) => {
+  let theme: Theme = 'default';
+
+  if (appContext.ctx.req) {
+    theme = appContext.ctx.req.cookies[THEME_SETTING] === 'default' ? 'default' : 'dark';
+  }
+
+  return {
+    theme,
+  }
 }
 
 export default App;
