@@ -193,8 +193,10 @@ const Home = () => {
           onChange={setSearch}
           value={values.search}
           width="max"
-          placeholder="Course abbr (ex. CSCI 152)"
+          placeholder="Course abbr (ex. CSCI 152) or title"
           icon={<MagnifyingGlassIcon />}
+          spellCheck="false"
+          autoCorrect="off"
         />
         <Select
           value={term}

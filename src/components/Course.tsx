@@ -82,6 +82,7 @@ const Card = styled('div', {
   border: '1px transparent solid',
   borderColor: '$gray4',
   borderRadius: '$medium',
+  overflow: 'hidden',
 
   '& .Course-Content': {
     padding: '$huge',
