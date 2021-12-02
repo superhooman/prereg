@@ -1,7 +1,8 @@
 import { SymbolIcon } from "@modulz/radix-icons";
-import { keyframes, VariantProps } from "@stitches/react";
+import { VariantProps } from "@stitches/react";
 import { ButtonHTMLAttributes, forwardRef, ReactNode } from "react";
 import { styled } from "src/utils/theme";
+import { Loading } from "./Loading";
 
 const ButtonBase = styled('button', {
   all: 'unset',
@@ -79,30 +80,12 @@ const ButtonBase = styled('button', {
   },
 });
 
-const loading = keyframes({
-  from: { transform: 'rotate(0deg)' },
-  to: { transform: 'rotate(359deg)' },
-});
-
 const Icon = styled('div', {
   marginRight: '$medium',
 
   '& svg': {
     display: 'block',
   },
-
-  variants: {
-    state: {
-      idle: {},
-      loading: {
-        animation: `${loading} 1s infinite linear`
-      }
-    }
-  },
-
-  defaultVariants: {
-    state: 'idle',
-  }
 });
 
 type StyledInputVariants = VariantProps<typeof ButtonBase>;
@@ -114,7 +97,7 @@ type ButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'size'> & Omit<
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({ loading = false, icon, children, ...props }, ref) => (
   <ButtonBase ref={ref} state={loading ? 'loading' : 'idle'} {...props}>
-    {loading ? <Icon state="loading"><SymbolIcon /></Icon> : (
+    {loading ? <Icon><Loading><SymbolIcon /></Loading></Icon> : (
       icon ? <Icon>{icon}</Icon> : null
     )}
     {children}

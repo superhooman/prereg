@@ -156,6 +156,22 @@ const Grid = styled('div', {
   }
 });
 
+const NoSchedule = styled('div', {
+  paddingY: '$huge',
+  borderTop: '1px transparent solid',
+  borderBottom: '1px transparent solid',
+  borderColor: '$gray4',
+  color: '$gray11',
+
+  lineHeight: 1.375,
+
+  '@bp2': {
+    gridTemplateColumns: '1fr',
+    marginX: '-$huge',
+    paddingX: '$big',
+  },
+})
+
 const getRange = (str: string) => {
   const times = str.split('-').map(parseTime);
 
@@ -188,18 +204,20 @@ const Type: FC<TypeProps> = ({ selection, type, schedule, courseId, onSelect }) 
 const TabContent: FC<TabContentProps> = ({ courseId, schedule, onSelect, selection }) => {
   const types = useMemo<string[]>(() => Array.from(getTypes(schedule)), [schedule]);
   return (
-    <Grid>
-      {types.map((type) => (
-        <Type
-          key={`${courseId}_${type}`}
-          type={type}
-          courseId={courseId}
-          onSelect={onSelect}
-          selection={selection}
-          schedule={schedule}
-        />
-      ))}
-    </Grid>
+    types.length ? (
+      <Grid>
+        {types.map((type) => (
+          <Type
+            key={`${courseId}_${type}`}
+            type={type}
+            courseId={courseId}
+            onSelect={onSelect}
+            selection={selection}
+            schedule={schedule}
+          />
+        ))}
+      </Grid>
+    ) : <NoSchedule>There is no schedule for this course</NoSchedule>
   )
 }
 

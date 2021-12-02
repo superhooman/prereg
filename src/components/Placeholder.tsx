@@ -18,9 +18,10 @@ const Empty = styled('div', {
   gap: '$medium',
   color: '$gray11',
 
-  '& > svg': {
+  '& svg': {
     height: 24,
     width: 24,
+    display: 'block',
   }
 });
 

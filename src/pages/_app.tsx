@@ -18,20 +18,9 @@ const OPENGRAPH = `${URL}opengraph.png`;
 const THEME_SETTING = 'reg.themeSetting';
 
 const globalStyles = globalCss({
-  '@import': "url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap')",
-  '*': {
-    boxSizing: 'border-box',
-  },
   body: {
-    margin: 0,
-    padding: 0,
     backgroundColor: '$background',
     color: '$text',
-    fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;'
-  },
-  a: {
-    color: 'inherit',
-    textDecoration: 'none',
   }
 });
 

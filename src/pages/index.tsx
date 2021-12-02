@@ -12,6 +12,7 @@ import { appContext, getCourseId, hasCourse } from 'src/utils/context';
 import { styled } from 'src/utils/theme';
 import { request } from 'src/utils/request';
 import { Placeholder, PlaceholderProps } from 'src/components/Placeholder';
+import { Loading } from 'src/components/Loading';
 
 const SEMESTERS: Option[] = [
   {
@@ -93,7 +94,7 @@ const stateToPlaceholder: Record<State, PlaceholderProps> = {
     text: 'Use the form above to find courses',
   },
   loading: {
-    icon: <SymbolIcon />,
+    icon: <Loading><SymbolIcon /></Loading>,
     text: 'Loading...',
   },
   loaded: {
